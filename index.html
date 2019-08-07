@@ -5,30 +5,37 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     </head>
     <body>
-        <input id="message" type="text">
-        <button id="send" >Enviar</button>
+        <input id="roomname" type="text">
+        <button id="create">Create Room</button>
 
         <div style="width: 240px;">
-            <ul id="chat" style="list-style-type: none; padding-inline-start: 0px;"></ul>
+            <ul id="rooms"></ul>
         </div>
         
         <script>
             $(document).ready(function () {
-                var socket = io.connect('https://deck-server.herokuapp.com/');
+                // var socket = io.connect('https://deck-server.herokuapp.com/');
+                var socket = io.connect('http://localhost:5000');
 
-                var chat = $("#chat");
+                var rooms = $('#rooms');
 
-                $("#send").click(function (event) {
-                    let message = $("#message").val();
-                    socket.emit('send_message', message);
-
-                    chat.prepend(`<li>${message}</li>`);
-
-                    $("#message").val("");
+                $('#create').click(function (event) {
+                    let roomname = $('#roomname').val();
+                    socket.emit('create_room', roomname);
                 });
 
-                socket.on('on_message', function (message) {
-                    chat.prepend(`<li style="text-align: right;">${message}</li>`);
+                $('#join').click(function (event) {
+                    console.log(event);
+                });
+
+                socket.on('room_created', function (roomname) {
+                    var li = $('<li/>').text(roomname);
+                    var button = $('<button/>').text('Join Room').click((event) => {
+                        var text = $(event.target).parent().text();
+                        console.log('I wanna join this room: ' + text);
+                    });
+                    li.append(button);
+                    rooms.prepend(li);
                 });
             });
         </script>
