@@ -13,31 +13,27 @@
         </div>
         
         <script>
-            $(document).ready(function () {
-                // var socket = io.connect('https://deck-server.herokuapp.com/');
-                var socket = io.connect('http://localhost:5000');
+                $(document).ready(function () {
+                    // var socket = io.connect('https://deck-server.herokuapp.com/');
+                    var socket = io.connect('http://localhost:5000');
 
-                var rooms = $('#rooms');
+                    var rooms = $('#rooms');
 
-                $('#create').click(function (event) {
-                    let roomname = $('#roomname').val();
-                    socket.emit('create_room', roomname);
-                });
-
-                $('#join').click(function (event) {
-                    console.log(event);
-                });
-
-                socket.on('room_created', function (roomname) {
-                    var li = $('<li/>').text(roomname);
-                    var button = $('<button/>').text('Join Room').click((event) => {
-                        var text = $(event.target).parent().text();
-                        console.log('I wanna join this room: ' + text);
+                    $('#create').click(function (event) {
+                        let roomname = $('#roomname').val();
+                        socket.emit('join_room', roomname);
                     });
-                    li.append(button);
-                    rooms.prepend(li);
+
+                    socket.on('room_created', function (roomname) {
+                        var span = $('<span/>').text(roomname);
+                        var button = $('<button/>').text('Join Room').click((event) => {
+                            var text = $(event.target).closest('li').find('span').text();
+                            socket.emit('join_room', roomname);
+                        });
+                        var li = $('<li/>').append(span).append(button);
+                        rooms.prepend(li);
+                    });
                 });
-            });
         </script>
     </body>
 </html>
