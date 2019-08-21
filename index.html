@@ -1,39 +1,52 @@
 <html>
+
     <head>
         <title>A Multiplayer Game</title>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+        <style>
+            #gameController { background-color: grey; border: 1px solid black; }
+            #gameController #enemyHand { background-color: red; border: 1px solid black; }
+            #gameController #playerHand { background-color: blue; border: 1px solid black; }
+            #gameController #table { background-color: yellow; border: 1px solid black; }
+            #gameController #deck { background-color: green; border: 1px solid black; }
+
+            .card { background-color: brown; border: 1px solid black; width: 40px; height: 90px; }
+        </style>
     </head>
+
     <body>
-        <input id="roomname" type="text">
-        <button id="create">Create Room</button>
-
-        <div style="width: 240px;">
-            <ul id="rooms"></ul>
+        <div id="roomController">
+            <input id="room" type="text">
+            <button id="join">Join Room</button>
         </div>
-        
+        <div id="gameController" style="padding: 20px;">
+            <div id="deck" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
+            <div style="height: 20px;"></div>
+            <div id="enemyHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
+            <div id="table" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
+            <div id="playerHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
+        </div>
+
         <script>
-                $(document).ready(function () {
-                    // var socket = io.connect('https://deck-server.herokuapp.com/');
-                    var socket = io.connect('http://localhost:5000');
+            $(document).ready(function () {
+                // var socket = io.connect('https://deck-server.herokuapp.com/');
+                var socket = io.connect('http://localhost:5000');
 
-                    var rooms = $('#rooms');
-
-                    $('#create').click(function (event) {
-                        let roomname = $('#roomname').val();
-                        socket.emit('join_room', roomname);
-                    });
-
-                    socket.on('room_created', function (roomname) {
-                        var span = $('<span/>').text(roomname);
-                        var button = $('<button/>').text('Join Room').click((event) => {
-                            var text = $(event.target).closest('li').find('span').text();
-                            socket.emit('join_room', roomname);
-                        });
-                        var li = $('<li/>').append(span).append(button);
-                        rooms.prepend(li);
-                    });
+                $('#join').click(function (event) {
+                    let room = $('#room').val();
+                    socket.emit('join_room', room);
                 });
+
+                socket.on('started_game', function () {
+                    console.log('started_game');
+                    for(var i = 0; i < 52; i ++) {
+                        var divCard = $('<div/>').addClass('card');
+                        $('#deck').append(divCard);
+                    }
+                });
+            });
         </script>
     </body>
+
 </html>
