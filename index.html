@@ -11,7 +11,7 @@
             #gameController #table { background-color: yellow; border: 1px solid black; }
             #gameController #deck { background-color: green; border: 1px solid black; }
 
-            .card { background-color: brown; border: 1px solid black; width: 40px; height: 90px; }
+            .card { background-color: brown; border: 1px solid black; width: 40px; height: 90px; display: flex; flex-direction: column; }
         </style>
     </head>
 
@@ -32,6 +32,7 @@
             $(document).ready(function () {
                 // var socket = io.connect('https://deck-server.herokuapp.com/');
                 var socket = io.connect('http://localhost:5000');
+                var startCards = 0;
 
                 $('#join').click(function (event) {
                     let room = $('#room').val();
@@ -44,6 +45,27 @@
                         var divCard = $('<div/>').addClass('card');
                         $('#deck').append(divCard);
                     }
+
+                    var drawing = setInterval(function () {
+                        if (startCards < 3) {
+                            startCards++;
+                            socket.emit('draw_card');
+                        } else {
+                            clearInterval(drawing);
+                        }
+                    }, 500);
+                });
+
+                socket.on('drawn_card', function (card) {
+                    var spanSuit = $('<span/>').text(card.slice(0, 1));
+                    var spanValue = $('<span/>').text(card.slice(1));
+                    var divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
+                    $('#playerHand').append(divCard);
+                });
+
+                socket.on('drawn_enemy_card', function () {
+                    var e = $('#deck div:last-child').detach();
+                    $('#enemyHand').append(e);
                 });
             });
         </script>
