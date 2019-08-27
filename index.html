@@ -31,8 +31,8 @@
         <script>
             $(document).ready(function () {
                 // var socket = io.connect('https://deck-server.herokuapp.com/');
-                var socket = io.connect('http://localhost:5000');
-                var startCards = 0;
+                let socket = io.connect('http://localhost:5000');
+                let enabledToPlay = false;
 
                 $('#join').click(function (event) {
                     let room = $('#room').val();
@@ -41,12 +41,13 @@
 
                 socket.on('started_game', function () {
                     console.log('started_game');
-                    for(var i = 0; i < 52; i ++) {
-                        var divCard = $('<div/>').addClass('card');
+                    for(let i = 0; i < 52; i ++) {
+                        let divCard = $('<div/>').addClass('card');
                         $('#deck').append(divCard);
                     }
 
-                    var drawing = setInterval(function () {
+                    let startCards = 0;
+                    let drawing = setInterval(function () {
                         if (startCards < 3) {
                             startCards++;
                             socket.emit('draw_card');
@@ -57,20 +58,43 @@
                 });
 
                 socket.on('start_player', function () {
-                    console.log('enable play');
+                    console.log('Enabled to play');
+                    enabledToPlay = true;
                 });
 
                 socket.on('drawn_card', function (card) {
-                    var spanSuit = $('<span/>').text(card.slice(0, 1));
-                    var spanValue = $('<span/>').text(card.slice(1));
-                    var divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
+                    let spanSuit = $('<span/>').text(card.slice(0, 1));
+                    let spanValue = $('<span/>').text(card.slice(1));
+                    let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit).click(onClickedCard);
                     $('#playerHand').append(divCard);
                 });
 
                 socket.on('drawn_enemy_card', function () {
-                    var e = $('#deck div:last-child').detach();
+                    let e = $('#deck div:last-child').detach();
                     $('#enemyHand').append(e);
                 });
+
+                socket.on('played_enemy_card', function (card) {
+                    let spanSuit = $('<span/>').text(card.slice(0, 1));
+                    let spanValue = $('<span/>').text(card.slice(1));
+                    let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
+                    $('#table').append(divCard);
+                    enabledToPlay = true;
+                });
+
+                var onClickedCard = function (event) {
+                    if (enabledToPlay) {
+                        let card = $(event.currentTarget);
+                        card.detach();
+                        $('#table').append(card);
+
+                        let suit = card.children().last().text();
+                        let value = card.children().first().text();
+                        socket.emit('play_card', suit + value);
+
+                        enabledToPlay = false;
+                    }
+                }
             });
         </script>
     </body>
