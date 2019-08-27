@@ -56,6 +56,10 @@
                     }, 500);
                 });
 
+                socket.on('start_player', function () {
+                    console.log('enable play');
+                });
+
                 socket.on('drawn_card', function (card) {
                     var spanSuit = $('<span/>').text(card.slice(0, 1));
                     var spanValue = $('<span/>').text(card.slice(1));
