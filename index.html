@@ -1,4 +1,8 @@
 <html>
+    <!--
+        [ ] Fazer a função pra desconectar
+        [ ] Tratar o que fazer quando o baralho termina
+    -->
 
     <head>
         <title>A Multiplayer Game</title>
@@ -10,6 +14,7 @@
             #gameController #playerHand { background-color: blue; border: 1px solid black; }
             #gameController #table { background-color: yellow; border: 1px solid black; }
             #gameController #deck { background-color: green; border: 1px solid black; }
+            #gameController #turn { font-family: Arial; font-weight: bolder; font-size: 2em; text-align: center; }
 
             .card { background-color: brown; border: 1px solid black; width: 40px; height: 90px; display: flex; flex-direction: column; }
         </style>
@@ -20,9 +25,13 @@
             <input id="room" type="text">
             <button id="join">Join Room</button>
         </div>
+        <div id="roomHeader" hidden=true>
+            <span id="roomName"></span>
+            <button id="disconnect" style=>Disconnect</button>
+        </div>
         <div id="gameController" style="padding: 20px;">
             <div id="deck" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
-            <div style="height: 20px;"></div>
+            <div id="turn" style="height: 40px;"></div>
             <div id="enemyHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
             <div id="table" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
             <div id="playerHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
@@ -33,14 +42,21 @@
                 // var socket = io.connect('https://deck-server.herokuapp.com/');
                 let socket = io.connect('http://localhost:5000');
                 let enabledToPlay = false;
+                let enemyCardPlayed = null;
 
                 $('#join').click(function (event) {
                     let room = $('#room').val();
                     socket.emit('join_room', room);
+                    $('#roomName').text(room);
+                    $('#roomController').hide();
+                    $('#roomHeader').show();
+                });
+
+                $('#disconnect').click(function (event) {
+
                 });
 
                 socket.on('started_game', function () {
-                    console.log('started_game');
                     for(let i = 0; i < 52; i ++) {
                         let divCard = $('<div/>').addClass('card');
                         $('#deck').append(divCard);
@@ -57,16 +73,26 @@
                     }, 500);
                 });
 
-                socket.on('start_player', function () {
-                    console.log('Enabled to play');
+                $('#deck').click(function (event) {
+                    if (enabledToPlay) {
+                        socket.emit('draw_card');
+                    }
+                });
+
+                socket.on('play_turn', function () {
+                    $('#turn').text('YOUR TURN');
                     enabledToPlay = true;
                 });
 
                 socket.on('drawn_card', function (card) {
-                    let spanSuit = $('<span/>').text(card.slice(0, 1));
-                    let spanValue = $('<span/>').text(card.slice(1));
-                    let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit).click(onClickedCard);
-                    $('#playerHand').append(divCard);
+                    $('#deck div:last-child').detach();
+
+                    if (card) {
+                        let spanSuit = $('<span/>').text(card.slice(0, 1));
+                        let spanValue = $('<span/>').text(card.slice(1));
+                        let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit).click(onClickedCard);
+                        $('#playerHand').append(divCard);
+                    }
                 });
 
                 socket.on('drawn_enemy_card', function () {
@@ -75,13 +101,16 @@
                 });
 
                 socket.on('played_enemy_card', function (card) {
+                    $('#enemyHand div:last-child').detach();
+
                     let spanSuit = $('<span/>').text(card.slice(0, 1));
                     let spanValue = $('<span/>').text(card.slice(1));
                     let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
+                    enemyCardPlayed = divCard;
                     $('#table').append(divCard);
-                    enabledToPlay = true;
                 });
 
+                // Play card function
                 var onClickedCard = function (event) {
                     if (enabledToPlay) {
                         let card = $(event.currentTarget);
@@ -92,9 +121,21 @@
                         let value = card.children().first().text();
                         socket.emit('play_card', suit + value);
 
+                        $('#turn').text('');
                         enabledToPlay = false;
                     }
                 }
+
+                socket.on('win_turn', function () {
+                    $('#turn').text('YOUR TURN');
+                    $('#table').empty();
+                    enabledToPlay = true;
+                })
+
+                socket.on('lose_turn', function () {
+                    $('#turn').text('');
+                    $('#table').empty();
+                })
             });
         </script>
     </body>
