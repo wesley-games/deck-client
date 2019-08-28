@@ -2,6 +2,9 @@
     <!--
         [ ] Fazer a função pra desconectar
         [ ] Tratar o que fazer quando o baralho termina
+        [*] Tratar quando jogar uma carta de naipe diferente
+        [*] Tratar quando o jogador ganhar o jogo
+        [ ] Tratar restart do game
     -->
 
     <head>
@@ -25,7 +28,7 @@
             <input id="room" type="text">
             <button id="join">Join Room</button>
         </div>
-        <div id="roomHeader" hidden=true>
+        <div id="roomHeader" hidden>
             <span id="roomName"></span>
             <button id="disconnect" style=>Disconnect</button>
         </div>
@@ -42,6 +45,7 @@
                 // var socket = io.connect('https://deck-server.herokuapp.com/');
                 let socket = io.connect('http://localhost:5000');
                 let enabledToPlay = false;
+                let playerCardPlayed = null;
                 let enemyCardPlayed = null;
 
                 $('#join').click(function (event) {
@@ -115,26 +119,55 @@
                     if (enabledToPlay) {
                         let card = $(event.currentTarget);
                         card.detach();
+                        playerCardPlayed = card;
                         $('#table').append(card);
 
                         let suit = card.children().last().text();
                         let value = card.children().first().text();
                         socket.emit('play_card', suit + value);
-
+                        
                         $('#turn').text('');
                         enabledToPlay = false;
+                        
+                        if ($('#playerHand').children().length === 0) {
+                            socket.emit('win_game');
+                            $('#turn').text('YOU WIN');
+                            enabledToPlay = false;
+                        }
                     }
                 }
 
+                socket.on('wrong_card', function () {
+                    console.log('wrong_card');
+                    setTimeout(() => {
+                        $('#playerHand').append(playerCardPlayed);
+                        $('#turn').text('YOUR TURN');
+                        enabledToPlay = true;
+                    }, 500);
+                });
+
+                socket.on('wrong_enemy_card', function () {
+                    console.log('wrong_enemy_card');
+                    setTimeout(() => {
+                        $(enemyCardPlayed).detach();
+                        $('#enemyHand').append($('<div />').addClass('card'));
+                    }, 500);
+                });
+
                 socket.on('win_turn', function () {
-                    $('#turn').text('YOUR TURN');
                     $('#table').empty();
+                    $('#turn').text('YOUR TURN');
                     enabledToPlay = true;
                 })
 
                 socket.on('lose_turn', function () {
-                    $('#turn').text('');
                     $('#table').empty();
+                    $('#turn').text('');
+                })
+
+                socket.on('lose_game', function () {
+                    $('#turn').text('YOU LOSE');
+                    enabledToPlay = false;
                 })
             });
         </script>
