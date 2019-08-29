@@ -128,12 +128,6 @@
                         
                         $('#turn').text('');
                         enabledToPlay = false;
-                        
-                        if ($('#playerHand').children().length === 0) {
-                            socket.emit('win_game');
-                            $('#turn').text('YOU WIN');
-                            enabledToPlay = false;
-                        }
                     }
                 }
 
@@ -158,17 +152,22 @@
                     $('#table').empty();
                     $('#turn').text('YOUR TURN');
                     enabledToPlay = true;
-                })
+                });
 
                 socket.on('lose_turn', function () {
                     $('#table').empty();
                     $('#turn').text('');
+                });
+
+                socket.on('win_game', function () {
+                    $('#turn').text('YOU WIN');
+                    enabledToPlay = false;
                 })
 
                 socket.on('lose_game', function () {
                     $('#turn').text('YOU LOSE');
                     enabledToPlay = false;
-                })
+                });
             });
         </script>
     </body>
