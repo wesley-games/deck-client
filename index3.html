@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>A Multiplayer Game</title>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    </head>
+
+    <body>
+        <div id="roomController">
+            <input id="room" type="text">
+            <button id="join">Join Room</button>
+        </div>
+        <div id="roomHeader" hidden>
+            <span id="roomName"></span>
+            <button id="disconnect">Disconnect</button>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                let socket = io.connect('http://localhost:5000');
+
+                $('#join').click(function (event) {
+                    let room = $('#room').val();
+                    socket.emit('join_room', room);
+                    $('#roomName').text(room);
+                    $('#roomController').hide();
+                    $('#roomHeader').show();
+                });
+
+                $('#disconnect').click(function (event) {
+                    socket.emit('leave_room');
+                    $('#roomController').show();
+                    $('#roomHeader').hide();
+                });
+
+                socket.on('created_room', function (room) {
+                    console.log('room ' + room + ' created')
+                })
+
+                socket.on('joined_room', function (player, room) {
+                    console.log(`${player} joined room ${room}`);
+                });
+
+                socket.on('disconnect_play', function () {
+                    console.log('player disconnected');
+                });
+
+                socket.on('started_game', function () {
+                    console.log('game started');
+                });
+            });
+        </script>
+    </body>
+
+</html>

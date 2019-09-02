@@ -1,10 +1,10 @@
 <html>
     <!--
-        [ ] Fazer a função pra desconectar
-        [ ] Tratar o que fazer quando o baralho termina
+        [*] Fazer a função pra desconectar
+        [*] Tratar o que fazer quando o baralho termina
         [*] Tratar quando jogar uma carta de naipe diferente
         [*] Tratar quando o jogador ganhar o jogo
-        [ ] Tratar restart do game
+        [*] Tratar restart do game
     -->
 
     <head>
@@ -30,7 +30,7 @@
         </div>
         <div id="roomHeader" hidden>
             <span id="roomName"></span>
-            <button id="disconnect" style=>Disconnect</button>
+            <button id="disconnect">Disconnect</button>
         </div>
         <div id="gameController" style="padding: 20px;">
             <div id="deck" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
@@ -39,6 +39,7 @@
             <div id="table" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
             <div id="playerHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
         </div>
+        <button id="restart" hidden>Restart</button>
 
         <script>
             $(document).ready(function () {
@@ -57,10 +58,36 @@
                 });
 
                 $('#disconnect').click(function (event) {
-
+                    socket.emit('leave_room');
+                    $('#roomController').show();
+                    $('#roomHeader').hide();
+                    $('#deck').empty();
+                    $('#table').empty();
+                    $('#playerHand').empty();
+                    $('#enemyHand').empty();
+                    $('#turn').text('');
                 });
 
+                socket.on('disconnected_play', function () {
+                    $('#deck').empty();
+                    $('#table').empty();
+                    $('#playerHand').empty();
+                    $('#enemyHand').empty();
+                    $('#turn').text('');
+                });
+
+                $('#restart').click(function (event) {
+                    socket.emit('restart_game');
+                })
+                
                 socket.on('started_game', function () {
+                    $('#deck').empty();
+                    $('#table').empty();
+                    $('#enemyHand').empty();
+                    $('#playerHand').empty();
+                    $('#turn').text('');
+                    $('#restart').hide();
+
                     for(let i = 0; i < 52; i ++) {
                         let divCard = $('<div/>').addClass('card');
                         $('#deck').append(divCard);
@@ -155,11 +182,13 @@
                 });
 
                 socket.on('lose_turn', function () {
+                    $('#restart').show();
                     $('#table').empty();
                     $('#turn').text('');
                 });
 
                 socket.on('win_game', function () {
+                    $('#restart').show();
                     $('#turn').text('YOU WIN');
                     enabledToPlay = false;
                 })
