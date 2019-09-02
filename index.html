@@ -182,18 +182,18 @@
                 });
 
                 socket.on('lose_turn', function () {
-                    $('#restart').show();
                     $('#table').empty();
                     $('#turn').text('');
                 });
-
+                
                 socket.on('win_game', function () {
                     $('#restart').show();
                     $('#turn').text('YOU WIN');
                     enabledToPlay = false;
                 })
-
+                
                 socket.on('lose_game', function () {
+                    $('#restart').show();
                     $('#turn').text('YOU LOSE');
                     enabledToPlay = false;
                 });
