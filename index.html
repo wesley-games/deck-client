@@ -1,26 +1,10 @@
 <html>
-    <!--
-        [*] Fazer a função pra desconectar
-        [*] Tratar o que fazer quando o baralho termina
-        [*] Tratar quando jogar uma carta de naipe diferente
-        [*] Tratar quando o jogador ganhar o jogo
-        [*] Tratar restart do game
-    -->
-
     <head>
         <title>A Multiplayer Game</title>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-        <style>
-            #gameController { background-color: grey; border: 1px solid black; }
-            #gameController #enemyHand { background-color: red; border: 1px solid black; }
-            #gameController #playerHand { background-color: blue; border: 1px solid black; }
-            #gameController #table { background-color: yellow; border: 1px solid black; }
-            #gameController #deck { background-color: green; border: 1px solid black; }
-            #gameController #turn { font-family: Arial; font-weight: bolder; font-size: 2em; text-align: center; }
 
-            .card { background-color: brown; border: 1px solid black; width: 40px; height: 90px; display: flex; flex-direction: column; }
-        </style>
+        <link rel="stylesheet" href="/css/index.css">
     </head>
 
     <body>
@@ -32,173 +16,16 @@
             <span id="roomName"></span>
             <button id="disconnect">Disconnect</button>
         </div>
-        <div id="gameController" style="padding: 20px;">
-            <div id="deck" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
-            <div id="turn" style="height: 40px;"></div>
-            <div id="enemyHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
-            <div id="table" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
-            <div id="playerHand" style="width: 99%; height: 100px; padding: 5px; display: flex; flex-direction: row;"></div>
+        <div id="gameController">
+            <div id="deck"></div>
+            <div id="turn"></div>
+            <div id="enemyHand"></div>
+            <div id="table"></div>
+            <div id="playerHand"></div>
         </div>
         <button id="restart" hidden>Restart</button>
 
-        <script>
-            $(document).ready(function () {
-                let socket = io.connect('https://deck-server.herokuapp.com/');
-                // let socket = io.connect('http://localhost:5000');
-                let enabledToPlay = false;
-                let playerCardPlayed = null;
-                let enemyCardPlayed = null;
-
-                $('#join').click(function (event) {
-                    let room = $('#room').val();
-                    socket.emit('join_room', room);
-                    $('#roomName').text(room);
-                    $('#roomController').hide();
-                    $('#roomHeader').show();
-                });
-
-                $('#disconnect').click(function (event) {
-                    socket.emit('leave_room');
-                    $('#roomController').show();
-                    $('#roomHeader').hide();
-                    $('#deck').empty();
-                    $('#table').empty();
-                    $('#playerHand').empty();
-                    $('#enemyHand').empty();
-                    $('#turn').text('');
-                });
-
-                socket.on('disconnected_play', function () {
-                    $('#deck').empty();
-                    $('#table').empty();
-                    $('#playerHand').empty();
-                    $('#enemyHand').empty();
-                    $('#turn').text('');
-                });
-
-                $('#restart').click(function (event) {
-                    socket.emit('restart_game');
-                })
-                
-                socket.on('started_game', function () {
-                    $('#deck').empty();
-                    $('#table').empty();
-                    $('#enemyHand').empty();
-                    $('#playerHand').empty();
-                    $('#turn').text('');
-                    $('#restart').hide();
-
-                    for(let i = 0; i < 52; i ++) {
-                        let divCard = $('<div/>').addClass('card');
-                        $('#deck').append(divCard);
-                    }
-
-                    let startCards = 0;
-                    let drawing = setInterval(function () {
-                        if (startCards < 3) {
-                            startCards++;
-                            socket.emit('draw_card');
-                        } else {
-                            clearInterval(drawing);
-                        }
-                    }, 500);
-                });
-
-                $('#deck').click(function (event) {
-                    if (enabledToPlay) {
-                        socket.emit('draw_card');
-                    }
-                });
-
-                socket.on('play_turn', function () {
-                    $('#turn').text('YOUR TURN');
-                    enabledToPlay = true;
-                });
-
-                socket.on('drawn_card', function (card) {
-                    $('#deck div:last-child').detach();
-
-                    if (card) {
-                        let spanSuit = $('<span/>').text(card.slice(0, 1));
-                        let spanValue = $('<span/>').text(card.slice(1));
-                        let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit).click(onClickedCard);
-                        $('#playerHand').append(divCard);
-                    }
-                });
-
-                socket.on('drawn_enemy_card', function () {
-                    let e = $('#deck div:last-child').detach();
-                    $('#enemyHand').append(e);
-                });
-
-                socket.on('played_enemy_card', function (card) {
-                    $('#enemyHand div:last-child').detach();
-
-                    let spanSuit = $('<span/>').text(card.slice(0, 1));
-                    let spanValue = $('<span/>').text(card.slice(1));
-                    let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
-                    enemyCardPlayed = divCard;
-                    $('#table').append(divCard);
-                });
-
-                // Play card function
-                var onClickedCard = function (event) {
-                    if (enabledToPlay) {
-                        let card = $(event.currentTarget);
-                        card.detach();
-                        playerCardPlayed = card;
-                        $('#table').append(card);
-
-                        let suit = card.children().last().text();
-                        let value = card.children().first().text();
-                        socket.emit('play_card', suit + value);
-                        
-                        $('#turn').text('');
-                        enabledToPlay = false;
-                    }
-                }
-
-                socket.on('wrong_card', function () {
-                    console.log('wrong_card');
-                    setTimeout(() => {
-                        $('#playerHand').append(playerCardPlayed);
-                        $('#turn').text('YOUR TURN');
-                        enabledToPlay = true;
-                    }, 500);
-                });
-
-                socket.on('wrong_enemy_card', function () {
-                    console.log('wrong_enemy_card');
-                    setTimeout(() => {
-                        $(enemyCardPlayed).detach();
-                        $('#enemyHand').append($('<div />').addClass('card'));
-                    }, 500);
-                });
-
-                socket.on('win_turn', function () {
-                    $('#table').empty();
-                    $('#turn').text('YOUR TURN');
-                    enabledToPlay = true;
-                });
-
-                socket.on('lose_turn', function () {
-                    $('#table').empty();
-                    $('#turn').text('');
-                });
-                
-                socket.on('win_game', function () {
-                    $('#restart').show();
-                    $('#turn').text('YOU WIN');
-                    enabledToPlay = false;
-                })
-                
-                socket.on('lose_game', function () {
-                    $('#restart').show();
-                    $('#turn').text('YOU LOSE');
-                    enabledToPlay = false;
-                });
-            });
-        </script>
+        <script type="application/javascript" src="js/index.js"></script>
     </body>
 
 </html>

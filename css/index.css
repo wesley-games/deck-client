@@ -1,0 +1,62 @@
+#gameController {
+    background-color: grey;
+    border: 1px solid black;
+    padding: 20px;
+}
+
+#gameController #enemyHand {
+    background-color: red;
+    border: 1px solid black;
+    width: 99%;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+#gameController #playerHand {
+    background-color: blue;
+    border: 1px solid black;
+    width: 99%;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+#gameController #table {
+    background-color: yellow;
+    border: 1px solid black;
+    width: 99%;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+#gameController #deck {
+    background-color: green;
+    border: 1px solid black;
+    width: 99%;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+#gameController #turn {
+    font-family: Arial;
+    font-weight: bolder;
+    font-size: 2em;
+    text-align: center;
+    height: 40px;
+}
+
+.card {
+    background-color: brown;
+    border: 1px solid black;
+    width: 40px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+}
