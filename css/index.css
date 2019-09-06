@@ -4,46 +4,6 @@
     padding: 20px;
 }
 
-#gameController #enemyHand {
-    background-color: red;
-    border: 1px solid black;
-    width: 99%;
-    height: 100px;
-    padding: 5px;
-    display: flex;
-    flex-direction: row;
-}
-
-#gameController #playerHand {
-    background-color: blue;
-    border: 1px solid black;
-    width: 99%;
-    height: 100px;
-    padding: 5px;
-    display: flex;
-    flex-direction: row;
-}
-
-#gameController #table {
-    background-color: yellow;
-    border: 1px solid black;
-    width: 99%;
-    height: 100px;
-    padding: 5px;
-    display: flex;
-    flex-direction: row;
-}
-
-#gameController #deck {
-    background-color: green;
-    border: 1px solid black;
-    width: 99%;
-    height: 100px;
-    padding: 5px;
-    display: flex;
-    flex-direction: row;
-}
-
 #gameController #turn {
     font-family: Arial;
     font-weight: bolder;
@@ -52,11 +12,92 @@
     height: 40px;
 }
 
-.card {
-    background-color: brown;
+#gameController #deck {
+    background-color: green;
     border: 1px solid black;
-    width: 40px;
-    height: 90px;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#gameController #table {
+    background-color: yellow;
+    border: 1px solid black;
+    height: 100px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#gameController #enemyHand {
+    background-color: red;
+    border: 1px solid black;
+    height: auto;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#gameController #playerHand {
+    background-color: blue;
+    border: 1px solid black;
+    height: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.card {
+    background-color: lightblue;
+    border: 5px solid black;
+    border-radius: 10px;
+    margin: 0px 5px;
+    width: 50px;
+    height: 100px;
     display: flex;
     flex-direction: column;
+}
+
+.card:empty::after {
+    width: 100%;
+    height: 100%;
+    margin-top: 10px;
+    content: "\01F7B4";
+    font-size: 3.5em;
+    color: grey;
+}
+
+.card span:first-child {
+    font-family: cursive;
+    font-size: 1.5em;
+}
+.card span:last-child[suit] {
+    margin-top: -10px;
+    visibility: hidden;
+}
+.card span:last-child[suit]::after {
+    margin-left: -9px;
+    visibility: visible;
+    font-size: 2em;
+}
+.card span:last-child[suit="H"]::after {
+    content: "\002665";
+    color: red;
+}
+.card span:last-child[suit="D"]::after {
+    content: "\002666";
+    color: red;
+}
+.card span:last-child[suit="S"]::after {
+    content: "\002660";
+    color: black;
+}
+.card span:last-child[suit="C"]::after {
+    content: "\002663";
+    color: black;
 }

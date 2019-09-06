@@ -75,7 +75,7 @@ $(document).ready(function () {
         $('#deck div:last-child').detach();
 
         if (card) {
-            let spanSuit = $('<span/>').text(card.slice(0, 1));
+            let spanSuit = $('<span/>').attr('suit', card.slice(0, 1)).text(card.slice(0, 1));
             let spanValue = $('<span/>').text(card.slice(1));
             let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit).click(onClickedCard);
             $('#playerHand').append(divCard);
@@ -90,7 +90,7 @@ $(document).ready(function () {
     socket.on('played_enemy_card', function (card) {
         $('#enemyHand div:last-child').detach();
 
-        let spanSuit = $('<span/>').text(card.slice(0, 1));
+        let spanSuit = $('<span/>').attr('suit', card.slice(0, 1)).text(card.slice(0, 1));
         let spanValue = $('<span/>').text(card.slice(1));
         let divCard = $('<div/>').addClass('card').append(spanValue).append(spanSuit);
         enemyCardPlayed = divCard;
