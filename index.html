@@ -10,11 +10,11 @@
     <body>
         <div id="roomController">
             <input id="room" type="text">
-            <button id="join">Join Room</button>
+            <button id="join" class="btn">Join Room</button>
         </div>
         <div id="roomHeader" hidden>
             <span id="roomName"></span>
-            <button id="disconnect">Disconnect</button>
+            <button id="disconnect" class="btn">Disconnect</button>
         </div>
         <div id="gameController">
             <div id="deck"></div>
@@ -23,7 +23,9 @@
             <div id="table"></div>
             <div id="playerHand"></div>
         </div>
-        <button id="restart" hidden>Restart</button>
+        <div id="roomRestart" hidden>
+            <button id="restart" class="btn">Restart</button>
+        </div>
 
         <script type="application/javascript" src="js/index.js"></script>
     </body>

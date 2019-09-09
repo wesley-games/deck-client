@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    let socket = io.connect('https://deck-server.herokuapp.com/');
-    // let socket = io.connect('http://localhost:5000');
+    // let socket = io.connect('https://deck-server.herokuapp.com/');
+    let socket = io.connect('http://localhost:5000');
     let enabledToPlay = false;
     let playerCardPlayed = null;
     let enemyCardPlayed = null;
@@ -42,7 +42,7 @@ $(document).ready(function () {
         $('#enemyHand').empty();
         $('#playerHand').empty();
         $('#turn').text('');
-        $('#restart').hide();
+        $('#roomRestart').hide();
 
         for (let i = 0; i < 52; i++) {
             let divCard = $('<div/>').addClass('card');
@@ -141,13 +141,13 @@ $(document).ready(function () {
     });
 
     socket.on('win_game', function () {
-        $('#restart').show();
+        $('#roomRestart').show();
         $('#turn').text('YOU WIN');
         enabledToPlay = false;
     })
 
     socket.on('lose_game', function () {
-        $('#restart').show();
+        $('#roomRestart').show();
         $('#turn').text('YOU LOSE');
         enabledToPlay = false;
     });
