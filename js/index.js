@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    // let socket = io.connect('https://deck-server.herokuapp.com/');
-    let socket = io.connect('http://localhost:5000');
+    let socket = io.connect('https://deck-server.herokuapp.com/');
+    // let socket = io.connect('http://localhost:5000');
     let enabledToPlay = false;
     let playerCardPlayed = null;
     let enemyCardPlayed = null;
